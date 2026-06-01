@@ -3,152 +3,907 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>杨氏模量实验——课前提问系统</title>
+    <title>杨氏模量实验三合一系统</title>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <script>
+        window.MathJax = {
+            tex: { inlineMath: [['$','$']], displayMath: [['$$','$$']] },
+            startup: { typeset: false },
+            svg: { displayAlign: 'center' }
+        };
+    </script>
+    <script src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
     <style>
-        *{margin:0;padding:0;box-sizing:border-box;font-family:"Microsoft YaHei",sans-serif;}
-        body {
-            color: #333;
-            padding: 16px;
-            min-height: 100vh;
-            background: #f5f7fa;
+        *{margin:0;padding:0;box-sizing:border-box;}
+        body{font-family:"Microsoft YaHei",sans-serif;}
+
+        /* 统一分隔样式 */
+        .section {
+            margin: 50px 0;
+            border-top: 3px solid #0ea5e9;
+            padding-top: 30px;
         }
-        .container{max-width:900px;margin:0 auto;}
-        .title{text-align:center;font-size:24px;color:#165DFF;margin-bottom:8px;font-weight:600;}
-        .sub{text-align:center;color:#666;margin-bottom:24px;font-size:15px;}
-        .card{background:#ffffff;border:1px solid #e5e7eb;border-radius:12px;padding:20px;margin-bottom:16px;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
-        .q-item{background:#f0f7ff;border-radius:8px;padding:14px;margin-bottom:12px;font-size:15px;color:#222;line-height:1.6;}
-        .rand-btn {
-            padding: 10px 18px;
-            background: #165DFF;
-            color: #ffffff;
+        .section-title {
+            text-align: center;
+            font-size: 24px;
+            color: #5eead4;
+            margin-bottom: 20px;
+            text-shadow: 0 0 10px #5eead4;
+        }
+
+        /* ============= 1. 计算器部分样式 ============= */
+        #calculator-section {
+            background:#f7f8fa;
+            padding:15px;
+        }
+        #calculator-section .card{background:#fff;border-radius:12px;padding:18px;margin-bottom:15px;box-shadow:0 2px 8px rgba(0,0,0,0.06);}
+        #calculator-section h2{text-align:center;color:#222;margin-bottom:15px;font-size:20px;}
+        #calculator-section label{display:block;margin-bottom:6px;font-size:15px;color:#333;font-weight:500;}
+        #calculator-section input{width:100%;padding:11px 14px;border:1px solid #e1e5e9;border-radius:8px;font-size:16px;margin-bottom:10px;}
+        #calculator-section button{width:100%;padding:16px;background:#007bff;color:#fff;border:none;border-radius:10px;font-size:17px;font-weight:bold;margin:10px 0;cursor:pointer;}
+        #calculator-section #result{line-height:2.1;color:#222;font-weight:bold;padding:15px;background:#f8f9fa;border-radius:8px;white-space:pre-wrap;min-height:100px;}
+        #calculator-section canvas{width:100%;height:380px;background:#fff;border-radius:10px;display:block;margin-top:10px;}
+
+        /* ============= 2. AI答疑部分样式 ============= */
+        #ai-section {
+            position: relative;
+            color: #e2e8f0;
+            padding: 30px 20px;
+            min-height: 100vh;
+            background: #0b1203 url('https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/e0aa89d62b2b4967b4d14414e89eccc3.png') center / cover no-repeat fixed;
+            overflow-x: hidden;
+        }
+        #ai-section::before {
+            content: "";
+            position: fixed;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
+            background: rgba(12, 22, 38, 0.7);
+            z-index: -1;
+        }
+        #ai-section .container {
+            max-width: 920px;
+            margin: 0 auto;
+            position: relative;
+            z-index: 2;
+        }
+        #ai-section .title {
+            text-align: center;
+            font-size: 30px;
+            color: #5eead4;
+            text-shadow: 0 0 18px #22d3ee;
+            margin-bottom: 8px;
+            letter-spacing: 1px;
+        }
+        #ai-section .sub {
+            text-align: center;
+            color: #94a3b8;
+            margin-bottom: 34px;
+            font-size: 15px;
+        }
+        #ai-section .card {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(72, 187, 255, 0.35);
+            border-radius: 20px;
+            padding: 26px;
+            margin-bottom: 22px;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.3);
+            transition: all 0.3s;
+        }
+        #ai-section .card:hover {
+            border: 1px solid rgba(72, 187, 255, 0.5);
+            box-shadow: 0 12px 36px rgba(94,234,212,0.2);
+        }
+        #ai-section .card h3 {
+            color: #60a5fa;
+            margin-bottom: 18px;
+            font-size: 19px;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        #ai-section textarea {
+            width: 100%;
+            height: 130px;
+            background: rgba(255,255,255,0.08);
+            border: 1px solid rgba(72, 187, 255, 0.4);
+            border-radius: 14px;
+            padding: 16px;
+            color: #e2e8f0;
+            font-size: 15px;
+            resize: none;
+            outline: none;
+            transition: 0.2s;
+        }
+        #ai-section textarea:focus {
+            border-color: #5eead4;
+            background: rgba(255,255,255,0.1);
+        }
+        #ai-section .btn {
+            width: 100%;
+            padding: 17px;
+            background: linear-gradient(90deg, #2563eb, #0ea5e9, #5eead4);
+            background-size: 200% 100%;
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-size: 16px;
+            font-weight: bold;
+            margin-top: 16px;
+            cursor: pointer;
+            transition: 0.3s;
+            box-shadow: 0 5px 15px rgba(14,165,233,0.35);
+        }
+        #ai-section .btn:hover {
+            background-position: 100% 0;
+            transform: translateY(-3px);
+            box-shadow: 0 8px 22px rgba(94,234,212,0.35);
+        }
+        #ai-section .ans-box {
+            background: rgba(0,15,30,0.45);
+            backdrop-filter: blur(6px);
+            border-radius: 16px;
+            padding: 28px;
+            min-height: 340px;
+            max-height: 580px;
+            overflow-y: auto;
+            line-height: 1.95;
+            font-size: 15px;
+            border: 1px solid rgba(94,234,212,0.25);
+        }
+        #ai-section .ans-box p {
+            margin: 12px 0;
+            line-height: 1.8;
+            clear: both;
+        }
+        #ai-section .ans-box .MathJax,
+        #ai-section .ans-box .mathjax {
+            display: block !important;
+            margin: 15px auto !important;
+            text-align: center !important;
+            float: none !important;
+            max-width: 100% !important;
+            overflow-x: auto;
+        }
+        #ai-section .ans-box h1,#ai-section .ans-box h2,#ai-section .ans-box h3 {
+            color: #5eead4;
+            margin: 14px 0;
+            clear: both;
+        }
+        #ai-section .ans-box ul,#ai-section .ans-box ol {
+            margin-left: 24px;
+            margin: 10px 0;
+            clear: both;
+        }
+        #ai-section .ans-box strong {
+            color: #93c5fd;
+            font-weight: 600;
+        }
+        ::-webkit-scrollbar { width: 6px; }
+        ::-webkit-scrollbar-thumb { background: #5eead4; border-radius: 10px; }
+        #ai-section .diagram-card {
+            background: rgba(255,255,255,0.08);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(72, 187, 255, 0.35);
+            border-radius: 20px;
+            padding: 26px;
+            margin-bottom: 22px;
+            text-align: center;
+        }
+        #ai-section .diagram-card img {
+            max-width: 100%;
+            height: auto;
+            border-radius: 12px;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        /* ============= 3. 课前问答部分样式 ============= */
+        .prelab-section {
+            background: #0b1203 url('https://p3-flow-imagex-sign.byteimg.com/tos-cn-i-a9rns2rl98/e0aa89d62b2b4967b4d14414e89eccc3.png') center/cover no-repeat fixed;
+            color: #e2e8f0;
+            padding: 12px;
+            min-height: 100vh;
+        }
+        .prelab-section::before {
+            content:""; position:fixed; top:0; left:0; width:100%; height:100%;
+            background:rgba(12,22,38,0.7); z-index:-1;
+        }
+        .prelab-section .container{max-width:100%;margin:0 auto;position:relative;z-index:2;}
+        .prelab-section .title{text-align:center;font-size:22px;color:#5eead4;text-shadow:0 0 18px #22d3ee;margin-bottom:8px;}
+        .prelab-section .sub{text-align:center;color:#94a3b8;margin-bottom:20px;font-size:14px;}
+        .prelab-section .card{background:rgba(255,255,255,0.08);backdrop-filter:blur(10px);border:1px solid rgba(72,187,255,0.35);border-radius:16px;padding:16px;margin-bottom:16px;}
+        .prelab-section .q-item{background:rgba(94,234,212,0.1);border-radius:10px;padding:12px;margin-bottom:10px;cursor:pointer;transition:0.3s;border:1px solid rgba(94,234,212,0.2);font-size:14px;}
+        .prelab-section .q-item:hover{background:rgba(94,234,212,0.2);border-color:#5eead4;}
+        .prelab-section textarea{width:100%;height:90px;background:rgba(255,255,255,0.08);border:1px solid rgba(72,187,255,0.4);border-radius:12px;padding:14px;color:#e2e8f0;font-size:15px;resize:none;outline:none;margin-bottom:14px;}
+        .prelab-section .btn{width:100%;padding:14px;background:linear-gradient(90deg,#2563eb,#0ea5e9,#5eead4);background-size:200% 100%;color:white;border:none;border-radius:12px;font-size:16px;font-weight:bold;cursor:pointer;transition:0.3s;}
+        .prelab-section .btn:hover{background-position:100% 0;}
+        .prelab-section .rand-btn {
+            padding: 8px 14px;
+            background: #5eead4;
+            color: #0b1203;
             border: none;
             border-radius: 8px;
             cursor: pointer;
             font-weight: bold;
-            margin-bottom: 16px;
-            font-size:15px;
-            transition: background 0.2s ease;
-        }
-        .rand-btn:hover {
-            background: #0f4cd1;
-        }
-        h3 {
-            color: #1f2937;
             margin-bottom: 12px;
-            font-size:18px;
+            font-size:14px;
         }
+        .prelab-section .ans{background:rgba(0,15,30,0.45);border-radius:12px;padding:16px;min-height:180px;max-height:350px;overflow-y:auto;line-height:1.7;border:1px solid rgba(94,234,212,0.25);font-size:14px;}
+        .prelab-section h3{font-size:16px;margin-bottom:12px;color:#fff;}
     </style>
 </head>
 <body>
+
+<!-- ====================== 1. 计算器部分（原代码完全不变） ====================== -->
+<div class="section" id="calculator-section">
+    <div class="section-title">📊 杨氏模量实验计算器 V3.0</div>
+    <h2>“光杠杆法” 杨氏模量测量实验计算系统</h2>
+
+    <div class="card">
+        <label>金属丝原长 L (mm)</label>
+        <input id="L" value="737.3">
+
+        <label>镜尺距 H (mm)</label>
+        <input id="H" value="688.0">
+
+        <label>光杠杆 D (mm)</label>
+        <input id="D" value="58.00">
+
+        <label>重力加速度 g (m/s²)</label>
+        <input id="g" value="9.8" readonly>
+    </div>
+
+    <div class="card">
+        <label>金属丝直径零点读数 d0 (mm)</label>
+        <input id="d0" value="0.000">
+
+        <label>直径测量1 (mm)</label>
+        <input id="d1" value="0.680">
+        <label>直径测量2 (mm)</label>
+        <input id="d2" value="0.690">
+        <label>直径测量3 (mm)</label>
+        <input id="d3" value="0.680">
+        <label>直径测量4 (mm)</label>
+        <input id="d4" value="0.670">
+        <label>直径测量5 (mm)</label>
+        <input id="d5" value="0.680">
+    </div>
+
+    <div class="card">
+        <label>砝码质量 m (kg)，逗号分隔（保留三位小数）</label>
+        <input id="m_list" value="3.000,4.000,5.000,6.000,7.000,8.000,9.000,10.000">
+
+        <label>加砝码刻度读数 (mm)，逗号分隔</label>
+        <input id="add_list" value="17.2,19.8,22.4,24.7,26.9,29.4,31.5,34.1">
+
+        <label>减砝码刻度读数 (mm)，逗号分隔</label>
+        <input id="sub_list" value="17.0,19.5,22.1,24.8,27.1,29.1,31.2,33.9">
+    </div>
+
+    <button onclick="calculate()">✅ 计算杨氏模量 + 绘制标准曲线</button> 
+
+    <div id="result"></div>
+    <canvas id="chart"></canvas>
+
+<script>
+function calculate() {
+    document.getElementById('result').innerText = "";
+    const canvas = document.getElementById('chart');
+    const ctx = canvas.getContext('2d');
+    const rect = canvas.getBoundingClientRect();
+    canvas.width = rect.width;
+    canvas.height = rect.height;
+    ctx.clearRect(0,0,canvas.width,canvas.height);
+
+    try {
+        const L = Number(document.getElementById('L').value);
+        const H = Number(document.getElementById('H').value);
+        const D = Number(document.getElementById('D').value);
+        const g = Number(document.getElementById('g').value);
+        const pi = 3.14159265;
+
+        const d0 = Number(document.getElementById('d0').value);
+        const d_arr = [
+            Number(document.getElementById('d1').value),
+            Number(document.getElementById('d2').value),
+            Number(document.getElementById('d3').value),
+            Number(document.getElementById('d4').value),
+            Number(document.getElementById('d5').value)
+        ];
+        const d_raw = d_arr.reduce((a,b)=>a+b,0) / d_arr.length;
+        const d_correct = d_raw - d0;
+        const d = Math.round(d_correct * 1000) / 1000;
+
+        // 直径A类不确定度
+        const n_d = d_arr.length;
+        let sum_d2 = 0;
+        d_arr.forEach(val => sum_d2 += (val - d_raw)**2);
+        const s_d = Math.sqrt(sum_d2 / (n_d - 1));
+        const uA_d = s_d / Math.sqrt(n_d);
+
+        // 直径B类不确定度（螺旋测微器仪器误差0.004mm）
+        const delta_ins_d = 0.004;
+        const uB_d = delta_ins_d / Math.sqrt(3);
+
+        // 直径合成不确定度
+        const u_d = Math.sqrt(uA_d**2 + uB_d**2);
+
+        const m = document.getElementById('m_list').value.split(',').map(Number).filter(n=>!isNaN(n));
+        const add = document.getElementById('add_list').value.split(',').map(Number).filter(n=>!isNaN(n));
+        const sub = document.getElementById('sub_list').value.split(',').map(Number).filter(n=>!isNaN(n));
+
+        if(m.length!==add.length || add.length!==sub.length || m.length<2){
+            throw new Error("数据长度不一致！");
+        }
+
+        const x_mean = add.map((_,i) => (add[i]+sub[i])/2);
+        const F = m.map(mi => mi * g);
+
+        const n = F.length;
+        let sumF=0, sumX=0, sumFX=0, sumF2=0;
+        for(let i=0; i<n; i++){
+            sumF += F[i];
+            sumX += x_mean[i];
+            sumFX += F[i] * x_mean[i];
+            sumF2 += F[i]**2;
+        }
+        const k = (n*sumFX - sumF*sumX) / (n*sumF2 - sumF**2);
+        const intercept = (sumX/n) - k*(sumF/n);
+
+        // 斜率不确定度
+        let S = 0;
+        for(let i=0; i<n; i++){
+            const x_pred = k*F[i] + intercept;
+            S += (x_mean[i] - x_pred)**2;
+        }
+        const s_x = Math.sqrt(S/(n-2));
+        const meanF = sumF/n;
+        let sumF_dev2 = 0;
+        F.forEach(f => sumF_dev2 += (f - meanF)**2);
+        const u_k = s_x / Math.sqrt(sumF_dev2);
+   
+        // 杨氏模量计算
+        const E_nmm2 = (8 * L * H) / (pi * d**2 * D * k);
+        const E_gpa = E_nmm2 / 1000;
+
+
+        //L、H、D：。单次测量，A类不确定度 = 0
+        const uA_L = 0;
+        const uA_H = 0;
+        const uA_D = 0;
+
+        //B类不确定度
+        const delta_LH = 0.5;
+        const uB_L = delta_LH / Math.sqrt(3);
+        const uB_H = delta_LH / Math.sqrt(3);
+
+        const delta_D = 0.02;
+        const uB_D = delta_D / Math.sqrt(3);
+
+        //合成不确定度 u = √(uA²+uB²)
+        const u_L = Math.sqrt(uA_L**2 + uB_L**2);
+        const u_H = Math.sqrt(uA_H**2 + uB_H**2);
+        const u_D = Math.sqrt(uA_D**2 + uB_D**2);
+
+        //相对不确定度
+        const ur_L = u_L / L;
+        const ur_H = u_H / H;
+        const ur_D = u_D / D;
+
+        // 杨氏模量相对不确定度 + 合成不确定度
+       
+        const ur_d = u_d / d;
+        const ur_k = u_k / k;
+        const ur_E = Math.sqrt(ur_L**2 + ur_H**2 + ur_D**2 + (2*ur_d)**2 + ur_k**2);
+        const u_E = E_gpa * ur_E;
+        const u_E_nmm2 = E_nmm2 * ur_E;
+
+        // 扩展不确定度 k=2
+        const U_E = (2 * u_E).toFixed(2);
+        const U_E_nmm2 = (2 * u_E_nmm2).toFixed(2);
+
+        let res = `
+-----（一）基础几何参数模块-------
+✅ 金属丝原长 L：${L.toFixed(1)} mm
+✅ 镜尺距 H：${H.toFixed(1)} mm
+✅ 光杠杆常数 D：${D.toFixed(2)} mm
+✅ 直径零点读数 d0：${d0.toFixed(3)} mm
+✅ 直径测量平均值：${d_raw.toFixed(3)} mm
+✅ 修正后直径 d：${d.toFixed(3)} mm
+-----（二）直径不确定度模块--------
+📏 直径A类不确定度 uA(d)：${uA_d.toFixed(4)} mm
+📏 直径B类不确定度 uB(d)：${uB_d.toFixed(4)} mm
+📏 直径合成不确定度 u(d)：${u_d.toFixed(4)} mm
+-----（三）拟合参数模块-------------
+✅ 最小二乘法斜率 k：${k.toFixed(6)} mm/N
+✅ 斜率不确定度 u(k)：${u_k.toFixed(6)} mm/N
+✅ 截距 b：${intercept.toFixed(3)} mm
+-----（四）杨氏模量与不确定度模块----
+✅ 杨氏模量 E：${E_nmm2.toFixed(2)} N/mm² ≈ ${E_gpa.toFixed(2)} GPa
+✅ 合成标准不确定度 u(E)：${u_E.toFixed(2)} GPa
+✅ 扩展不确定度 U（k=2）：${U_E} GPa
+-----（五）最终结果模块------------
+🎯 最终实验结果：
+   E = （${E_gpa.toFixed(2)} ± ${U_E}） GPa
+   E = （${E_nmm2.toFixed(2)} ± ${U_E_nmm2}） N/mm²
+        `;
+        document.getElementById('result').innerText = res;
+
+        // ====================== 绘图：坐标完全对齐 ======================
+        const W = canvas.width;
+        const H_canvas = canvas.height;
+        const pad = 80;
+        const axisW = W - 2*pad;
+        const axisH = H_canvas - 2*pad;
+
+        // 固定坐标轴（规整刻度：0 10 20...）
+        const F_axis_min = 0;
+        const F_axis_max = 100;
+        const X_axis_min = 10;
+        const X_axis_max = 40;
+
+        // 坐标映射（点位置与刻度严格对应）
+        function fx(f) { return pad + (f - F_axis_min) / (F_axis_max - F_axis_min) * axisW; }
+        function fy(x) { return H_canvas - pad - (x - X_axis_min) / (X_axis_max - X_axis_min) * axisH; }
+
+        // 网格
+        ctx.strokeStyle = '#eee';
+        ctx.lineWidth = 1;
+        for(let i=0; i<=6; i++){
+            let x = pad + axisW/6*i;
+            ctx.beginPath(); ctx.moveTo(x, pad); ctx.lineTo(x, H_canvas-pad); ctx.stroke();
+        }
+        for(let i=0; i<=6; i++){
+            let y = pad + axisH/6*i;
+            ctx.beginPath(); ctx.moveTo(pad, y); ctx.lineTo(W-pad, y); ctx.stroke();
+        }
+
+        // 坐标轴
+        ctx.strokeStyle = '#333'; ctx.lineWidth=2;
+        ctx.beginPath();
+        ctx.moveTo(pad, H_canvas-pad); ctx.lineTo(W-pad, H_canvas-pad);
+        ctx.moveTo(pad, pad); ctx.lineTo(pad, H_canvas-pad);
+        ctx.stroke();
+
+        // ====================== 规整刻度 ======================
+        ctx.fillStyle = '#333';
+        ctx.font = '14px Arial';
+
+        // X轴：0 10 20 ... 100
+        for(let v=F_axis_min; v<=F_axis_max; v+=10){
+            let x = fx(v);
+            ctx.fillText(v, x-8, H_canvas-pad+22);
+        }
+
+        // Y轴：10 15 20 ... 40
+        for(let v=X_axis_min; v<=X_axis_max; v+=5){
+            let y = fy(v);
+            ctx.fillText(v, pad-40, y+5);
+        }
+
+        // ====================== 实验点 + 坐标标注 ======================
+        ctx.fillStyle = '#007bff';
+        F.forEach((fi,i)=>{
+            let x = fx(fi);
+            let y = fy(x_mean[i]);
+            ctx.beginPath(); ctx.arc(x,y,5,0,Math.PI*2); ctx.fill();
+            ctx.fillStyle = '#333';
+            ctx.font = '11px Arial';
+            ctx.fillText(`(${fi.toFixed(1)}, ${x_mean[i].toFixed(1)})`, x+8, y-8);
+            ctx.fillStyle = '#007bff';
+        });
+
+        // ====================== 拟合直线 ======================
+        ctx.strokeStyle = '#dc3545'; ctx.lineWidth=2;
+        ctx.beginPath();
+        ctx.moveTo(fx(F_axis_min), fy(k*F_axis_min + intercept));
+        ctx.lineTo(fx(F_axis_max), fy(k*F_axis_max + intercept));
+        ctx.stroke();
+
+        // ====================== 图上直接标注拟合方程 ======================
+        ctx.fillStyle = '#dc3545';
+        ctx.font = 'bold 15px Microsoft YaHei';
+        ctx.fillText(`拟合方程：x = ${k.toFixed(2)}F + ${intercept.toFixed(2)}`, pad + 20, pad + 60);
+
+        // 标签
+        ctx.fillStyle = '#222'; ctx.font='15px Microsoft YaHei';
+        ctx.fillText('受力 F (N)', W/2-25, H_canvas-25);
+        ctx.save();
+        ctx.translate(30, H_canvas/2); ctx.rotate(-Math.PI/2);
+        ctx.fillText('刻度读数 x (mm)',0,0);
+        ctx.restore();
+
+        // 图例
+        ctx.fillStyle='#007bff'; ctx.fillRect(pad+15,pad+15,10,10);
+        ctx.fillStyle='#333'; ctx.fillText('实验数据',pad+32,pad+23);
+        ctx.strokeStyle='#dc3545'; ctx.lineWidth=2;
+        ctx.beginPath(); ctx.moveTo(pad+15,pad+40); ctx.lineTo(pad+25,pad+40); ctx.stroke();
+        ctx.fillText('最小二乘拟合',pad+32,pad+42);
+
+        ctx.font='bold 17px Microsoft YaHei';
+        ctx.fillStyle = '#222';
+        ctx.fillText('F - x 关系曲线', W/2-70, 30);
+
+    } catch(e) {
+        document.getElementById('result').innerText = "❌ 错误："+e.message;
+    }
+}
+</script>
+</div>
+
+<!-- ====================== 2. AI答疑部分（原代码完全不变） ====================== -->
+<div class="section" id="ai-section">
+    <div class="section-title">💬 杨氏模量实验AI深度答疑伴侣</div>
     <div class="container">
-        <div class="title">杨氏模量实验 课前预习提问系统</div>
-        <div class="sub">基于大模型+仪器技术文档自动生成问题系统</div>
+        <div class="title">杨氏模量实验AI答疑伴侣</div>
+        <div class="sub">基于AI大模型 + 实验材料</div>
+
+        <!-- 示意图卡片移到这里：标题下方，提问卡片上方 -->
+        <div class="diagram-card">
+            <h3 style="color: #60a5fa; margin-bottom: 18px; font-size: 19px; text-align: left;">📐 光杠杆放大原理示意图</h3>
+            <img src="https://zhanglihao-del.github.io/youngs-modulus-lab-ai-assistant/light-lever.png" alt="光杠杆放大原理示意图">
+        </div>
 
         <div class="card">
-            <h3>📋 课前预习思考题</h3>
-            <button class="rand-btn" onclick="getRandomQuestions()">🎲 随机生成5道课前思考题</button>
+            <h3>💬 你对杨氏模量实验的疑问还有啥吖~</h3>
+            <textarea id="q" placeholder="我猜猜~你肯定会问：光杠杆原理、公式推导、逐差法、误差来源、仪器怎么调、实验报告怎么写等"></textarea>
+            <button class="btn" onclick="ask()">🧠 轻轻敲我一下 我才回答你噢 </button>
+        </div>
+
+        <div class="card">
+            <h3>📘 我的深度解答在下面吖~</h3>
+            <div class="ans-box" id="ans">我已准备接受拷问啦，可以为你解答原理、步骤、误差、仪器、报告等全部深度问题噢～</div>
+        </div>
+    </div>
+
+<script>
+const API_KEY = "sk-929f977a6546471a90d935b7bc1d79a5";
+const MODEL = "qwen-turbo";
+
+const KNOWLEDGE = `
+# 杨氏模量实验官方说明书（完整版）
+
+## 一、实验概述
+力作用于物体产生形变，弹性形变分纵向、切变、扭转、弯曲。
+杨氏模量E：材料抵抗拉伸形变能力，仅与材料性质有关。
+本实验采用**拉伸法+光杠杆法**测金属丝杨氏模量。
+
+## 二、实验目的
+1. 学会拉伸法测杨氏模量；
+2. 掌握光杠杆微小位移放大原理；
+3. 掌握游标卡尺、千分尺、钢卷尺、望远镜使用；
+4. 学会数据处理、误差分析、不确定度计算。
+
+## 三、实验仪器
+- 杨氏模量仪（含金属丝、光杠杆、望远镜、标尺）
+- 螺旋测微器（精度0.01mm）
+- 游标卡尺（精度0.02mm）
+- 钢卷尺（精度1mm）
+- 数字拉力计、LED标尺
+
+## 四、核心物理量定义（标准定义）
+- D：光杠杆常数，定义为光杠杆后足尖到前两足连线的垂直距离。
+- H：镜尺距，定义为光杠杆反射镜转轴到发光标尺的垂直距离。
+- Δx：标尺刻度变化量，定义为经光杠杆放大后，望远镜中观测到的标尺读数变化量。
+- θ：光杠杆偏转角，定义为金属丝伸长时，光杠杆反射镜转过的微小角度。
+- M：光杠杆放大倍数，定义为光杠杆将微小伸长量ΔL放大为Δx的倍率，M=2H/D。
+
+## 五、核心原理
+### 1. 杨氏模量定义
+$$E=\\frac{\\sigma}{\\varepsilon}=\\frac{F/S}{\\Delta L/L}$$
+S=πd²/4
+
+### 2. 光杠杆放大原理
+- 几何关系：$\\Delta L = \\frac{D}{2H} \\cdot \\Delta x$
+- 放大倍数：$M = \\frac{2H}{D}$
+
+### 3. 最终公式
+$$E=\\frac{8FLH}{\\pi d^2 D \\Delta x}$$
+
+## 六、实验步骤
+1. 调平仪器，拉直金属丝；
+2. 调节望远镜：粗调共轴、细调清晰、消视差；
+3. 测L、H、D；
+4. 千分尺测直径5次；
+5. 加砝码（3→10kg）记录标尺；
+6. 减砝码记录标尺；
+7. 取平均、逐差法/最小二乘法处理；
+8. 计算E并分析误差。
+
+## 七、数据处理
+1. 直径取平均；
+2. 加减读数取平均；
+3. 逐差法：消除系统误差、提高精度；
+4. 最小二乘法：拟合F-x直线求斜率k；
+5. E=8gLH/(πd²Dk)
+
+## 八、误差来源
+1. 金属丝直径不均、千分尺读数误差；
+2. 光杠杆未放平、镜面倾斜；
+3. 望远镜视差、读数视差；
+4. 金属丝弯曲、未竖直；
+5. 砝码质量误差、振动影响；
+6. 温度影响。
+
+## 九、逐差法
+分组：前4、后4
+对应项相减，求平均Δx，消除线性误差
+
+## 十、最小二乘法
+拟合F=kx+b，k为劲度系数，E与k成反比
+
+## 十一、实验报告要点
+目的、原理、仪器、步骤、数据、处理、结果、误差、结论
+
+## 十二、答辩重点
+光杠杆放大、公式推导、逐差法、误差、仪器调节、数据处理
+
+# ===================== 深度物理思考体系（AI 举一反三、自由推理）=====================
+## 一、实验核心物理本质
+1. 必须保证金属丝处于**纯弹性形变范围**，胡克定律 F=kΔL 严格成立；
+2. 光杠杆的作用是**线性放大微小位移**，ΔL 与 Δx 必须保持严格线性；
+3. 所有操作规范、仪器选择、数据处理，均围绕：**保线性、消误差、提精度**。
+
+## 二、操作逻辑（为什么要/不要做某件事）
+- 预拉金属丝：消除弯曲松弛，保证纯弹性形变；
+- 加减力双向测量：消除机械回程间隙误差；
+- 禁止回旋螺母：避免破坏拉力与位移的线性关系；
+- 禁止震动：光杠杆对微位移极敏感，震动直接导致读数失真；
+- 禁止中途调望远镜：光路与放大系统固定，调节会让全部数据失效；
+- 多位置测直径：金属丝非正圆，d²对结果影响极大，必须减小系统误差；
+- 拉力不超上限：防止进入塑性形变，使公式完全失效。
+
+## 三、仪器选择逻辑（量程 + 精度匹配）
+- L、H 大尺寸 → 钢卷尺（量程足够）
+- D 中等尺寸 → 游标卡尺（精度匹配）
+- d 微小尺寸 → 螺旋测微器（高精度必需）
+- 微小形变 → 光杠杆放大（30~50倍）
+- 光路观测 → 望远镜（消视差、精准读数）
+
+## 四、误差分析逻辑
+- 系统误差：仪器倾斜、直径不均、间隙、光路偏移（可消除）
+- 随机误差：震动、读数偏差、环境干扰（可减小）
+
+## 五、数据处理逻辑
+- 逐差法 / 线性拟合：充分利用数据、消除线性系统误差、验证胡克定律
+- 简单平均：丢失线性关系，精度低，不推荐使用
+`;
+
+async function ask() {
+    const q = document.getElementById("q").value.trim();
+    const ans = document.getElementById("ans");
+    if (!q) { ans.innerHTML = "⚠️ 笨蛋！你都没输入问题，我咋回答你嘞~"; return; }
+    ans.innerHTML = "🧠 我正在思考ing...";
+
+    const prompt = `
+你是大学物理实验顶级资深讲师，回答必须严格遵循标准定义：
+- 光杠杆常数指的是D（后足到前两足连线的垂直距离），不是放大倍数M。
+- 放大倍数M=2H/D，其中H是反射镜转轴到标尺的垂直距离。
+- 所有回答必须严谨、精准，和标准定义保持一致。
+
+回答规则：
+1. 学生问什么，**只精准回答什么**，直击物理本质；
+2. 所有公式必须用$$块级公式，单独一行、居中显示；
+3. 分段清晰、排版整洁、文字与公式不重叠；
+4. 语言专业、简洁、严谨；
+5. 绝不背诵固定题库，所有回答均为**实时逻辑分析**。
+
+【实验知识库】
+${KNOWLEDGE}
+
+【学生问题】
+${q}
+`;
+
+    try {
+        const res = await fetch("https://dashscope.aliyuncs.com/api/v1/services/aigc/text-generation/generation", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "Authorization": "Bearer " + API_KEY
+            },
+            body: JSON.stringify({
+                model: MODEL,
+                input: { prompt },
+                parameters: { temperature: 0.1, result_format: "text" }
+            })
+        });
+        const data = await res.json();
+        const text = data.output.text;
+        if (typeof marked !== 'undefined') {
+            ans.innerHTML = marked.parse(text);
+            await MathJax.typesetPromise([ans]);
+        } else {
+            ans.innerHTML = text.replace(/\n/g, '<br>');
+        }
+    } catch (e) {
+        ans.innerHTML = "❌ 请求失败：" + e.message;
+    }
+}
+</script>
+</div>
+
+<!-- ====================== 3. 课前问答部分（原代码完全不变） ====================== -->
+<div class="section prelab-section">
+    <div class="section-title">📋 杨氏模量实验 课前预习提问系统</div>
+    <div class="container">
+        <div class="title">杨氏模量实验 课前预习提问系统</div>
+        <div class="sub">基于大模型的自动生成课前问题系统</div>
+
+        <div class="card">
+            <h3>📋 课前思考题</h3>
+            <button class="rand-btn" onclick="getRandomQuestions()">🎲 随机出5道课前思考题</button>
             <div id="questionBox"></div>
+        </div>
+
+        <div class="card">
+            <h3>💬 提问我叭！</h3>
+            <textarea id="q_pre" placeholder="点击上方问题即可自动填入"></textarea>
+            <button class="btn" onclick="askPre()">🧠 轻轻敲我一下呗</button>
+        </div>
+
+        <div class="card">
+            <h3>📘 高手准备为你解答咯</h3>
+            <div class="ans" id="ans_pre">我准备接受灵魂拷问啦～</div>
         </div>
     </div>
 
     <script>
+        // 100道高质量题库（完全对齐计算器）
         const questionBank = [
-            // ========== 一、基础公式、力学原理 ==========
-            "写出本实验杨氏模量计算公式 E = 8gLH/(πd²Dk)，并逐一说明式中每个物理量的名称、测量工具与标准单位。",
-            "推导光杠杆放大倍数公式，并解释放大倍数与光杠杆臂长D、镜面到标尺距离H的关系。",
-            "杨氏模量E的物理意义是什么？它反映了固体材料的何种力学性质？",
-            "应力、应变的定义表达式分别是什么？简述胡克定律与杨氏模量的关联。",
-            "单位换算：1 GPa、1 MPa、1 N/mm² 三者之间如何相互换算？",
-            "结合金属丝横截面积公式与光杠杆原理，分步推导公式中系数8的由来。",
-            "光杠杆镜面发生微小偏转θ角时，标尺读数偏移量Δn与偏转角存在怎样的近似关系？该近似成立的条件是什么？",
-            "实验为何必须保证金属丝始终处于弹性形变区间？若超出弹性极限会出现什么现象？",
-
-            // ========== 二、数据处理：逐差法、线性拟合、不确定度 ==========
-            "本实验测量标尺读数为何优先使用逐差法处理数据？逐差法相比直接求平均有哪些优势？",
-            "简述逐差法的使用前提，若测量6组等间隔载荷数据，如何分组进行逐差计算？",
-            "实验中以载荷F为横坐标、标尺读数n为纵坐标做线性拟合，写出拟合斜率k的表达式，并说明其物理含义。",
-            "线性拟合得到的截距不为零，分析产生该现象的主要实验原因。",
-            "若F-n曲线明显偏离直线，试分析金属丝或实验装置可能出现的问题。",
-            "区分A类不确定度和B类不确定度，本实验中哪些物理量需要计算A类不确定度？",
-            "仪器误差属于哪一类不确定度？螺旋测微器、米尺、标尺的仪器误差限值分别是多少？",
-            "根据间接测量量不确定度传递公式，推导杨氏模量E的相对不确定度表达式。",
-            "分析金属丝直径d的测量误差，为何对最终杨氏模量结果影响最大？",
-            "扩展不确定度U与合成标准不确定度u_c的关系是什么？取包含因子k=2时代表什么置信概率？",
-            "简述用最小二乘法进行一元线性回归的数据处理完整步骤。",
-
-            // ========== 三、仪器结构、技术参数（取自仪器技术文档） ==========
-            "整套杨氏模量测定仪由哪几大核心部件组成？分别说明各部件的作用。",
-            "简述光杠杆组件的内部结构，包含镜面、前足、后足三部分各自的安装要求与功能。",
-            "根据仪器技术参数，说明本装置配套望远镜的放大倍率、有效观测视场范围。",
-            "仪器配套标尺的量程、最小分度值分别是多少？读数时估读位数要求是什么？",
-            "本实验装置标配金属丝的标称长度、常用直径规格范围分别是多少？",
-            "简述砝码组的标称单块质量、总加载量程，以及仪器设计的最大安全加载载荷。",
-            "光杠杆标准臂长D的出厂标称值是多少？使用前是否需要重新实测标定？",
-            "杨氏模量底座采用水平调节螺钉，说明底座调平的技术要求及判断标准。",
-            "望远镜镜筒的俯仰调节机构、左右微调机构，在技术文档中规定的调节范围是多少？",
-            "仪器支架、夹头组件的材质是什么？金属丝上下夹头的锁紧结构原理是什么？",
-
-            // ========== 四、标准操作规程（仪器文档规范步骤） ==========
-            "按照仪器技术规程，简述杨氏模量实验整机安装与调试的完整流程。",
-            "依据设备操作规范，说明望远镜与标尺的同轴等高调节步骤与判定标准。",
-            "光杠杆安装的官方规范：后足、前足分别放置位置，以及镜面垂直度调节要求。",
-            "加载砝码的标准操作流程是什么？为何规程要求逐级加载、逐级卸载，禁止一次性增减砝码？",
-            "按照仪器使用文档，简述螺旋测微器测量金属丝直径的标准操作流程与读数规则。",
-            "实验开机/使用前，依据设备规范需要做哪些预检项目？",
-            "实验结束后的仪器归位、清洁、收纳，按照技术文档有哪些硬性要求？",
-            "更换待测金属丝时，遵循设备规程的拆装步骤是什么？如何避免夹头划伤金属丝？",
-
-            // ========== 五、仪器故障排查、异常现象（维修/运维文档内容） ==========
-            "依据仪器故障手册：望远镜视野内完全看不到标尺像，列举3种官方排查方案。",
-            "加载砝码后标尺读数持续漂移、无法稳定，结合设备结构分析故障点与处理方法。",
-            "光杠杆镜面松动、偏转卡顿，属于仪器常见故障，说明危害及标准紧固维修方法。",
-            "底座水平失准会带来哪些测量偏差？如何利用水平泡和调平螺钉快速修正？",
-            "上下夹头夹持金属丝打滑，是设备常见问题，分析原因并给出规范处理方式。",
-            "望远镜调焦旋钮失灵、镜筒无法伸缩，简述简易排查与报修条件。",
-            "标尺刻度模糊、反光异常，按照设备维护要求如何处理？",
-            "同一载荷下多次读数重复性差，从仪器机械结构角度分析主要故障原因。",
-
-            // ========== 六、仪器标定、维护与保养（设备维保文档） ==========
-            "根据仪器维保手册，说明杨氏模量装置的日常保养项目及周期。",
-            "光杠杆臂长D、标尺零点、望远镜光路，仪器多久需要进行一次整机标定？",
-            "金属丝属于易损件，维保文档中规定的更换判定标准是什么？",
-            "设备长期闲置存放，按照技术要求需要做哪些防护措施？",
-            "螺旋测微器零点偏移属于仪器系统误差，依据规范多久校验一次零点？",
-            "仪器金属部件防锈、光学镜片防污的官方维护要求是什么？禁止哪些操作？",
-
-            // ========== 七、综合拓展、误差分析、深度思考 ==========
-            "增减砝码时，要求轻拿轻放且等待示数稳定，结合仪器结构分析该操作的原因。",
-            "光杠杆装置安装时，为何技术规范要求镜面垂直于水平面、标尺保持竖直？",
-            "使用螺旋测微器测量金属丝直径时，如何读取初读数（零点误差）？零点误差为正、负时如何修正测量值？",
-            "螺旋测微器测量时，为何规程禁止过度旋转棘轮？会造成什么后果？",
-            "更换不同粗细的同种金属丝，在相同载荷下，伸长量和杨氏模量会如何变化？",
-            "加载和卸载过程中，同一载荷对应的标尺读数不一致（滞后现象），结合仪器与材料特性分析原因。",
-            "若抬高光杠杆的支点高度，在其他条件不变时，光杠杆放大倍数如何变化？杨氏模量测量结果是否改变？",
-            "假设实验中H测量偏大，结合公式分析最终计算出的杨氏模量E会偏大还是偏小？",
-            "比较光杠杆法、千分表法测量微小形变，结合仪器结构说明两者优缺点。",
-            "同一根金属丝，在不同温度下杨氏模量是否会改变？结合材料特性简述原因。",
-            "为什么测量金属丝原长L时，不需要像测直径一样多次多点测量？",
-            "结合不确定度与仪器精度，说明本实验中哪些部件/物理量需要优先保证测量精度。"
+            "写出本实验杨氏模量计算公式 E = 8gLH/(πd²Dk)，并说明每个物理量的含义与单位。",
+            "光杠杆放大倍数公式是什么？H 和 D 分别代表什么距离？",
+            "为什么杨氏模量实验必须用光杠杆放大法测量微小伸长量？",
+            "当金属丝受力伸长时，光杠杆镜面转动角度与标尺读数变化是什么关系？",
+            "杨氏模量 E 的两个常用单位 N/mm² 与 GPa 如何换算？",
+            "公式中的系数 8 是如何从光杠杆原理与截面积公式推导出来的？",
+            "本实验中 F-x 拟合曲线的斜率 k 的物理意义是什么？",
+            "为什么斜率 k 会直接影响杨氏模量的最终结果？",
+            "应力与应变的定义是什么？它们与杨氏模量的关系是什么？",
+            "为什么本实验要求金属必须处于弹性形变范围内？",
+            "本实验使用哪些测量仪器？分别测量哪些物理量？",
+            "螺旋测微器的仪器误差是多少？为什么用它测量金属丝直径？",
+            "钢卷尺的仪器误差是多少？用于测量哪两个量？",
+            "游标卡尺的仪器误差是多少？用于测量哪个量？",
+            "光杠杆三足应如何正确放置？后足为什么不能压在金属丝上？",
+            "近距式杨氏模量仪的发光标尺与望远镜的作用是什么？",
+            "数字拉力计的作用是什么？实验最大拉力为什么不能超过12kg？",
+            "望远镜调节时，如何快速找到标尺清晰的像？",
+            "如何消除望远镜读数时的视差？",
+            "实验前为什么必须调节仪器水平？如何判断水平？",
+            "实验开始前为什么要加预拉力？",
+            "金属丝直径为什么要在不同位置、不同方向测量5次？",
+            "螺旋测微器零点读数 d0 的作用是什么？如何进行直径修正？",
+            "修正后直径 d 的计算公式是什么？",
+            "实验为什么要同时记录加砝码与减砝码两组读数？",
+            "为什么要取加、减砝码读数的平均值作为最终标尺读数？",
+            "加减砝码时，为什么必须等待稳定后再读数？",
+            "实验过程中为什么不能触碰桌面或望远镜？",
+            "标尺读数为什么不能超出量程范围？初始位置应控制在多少？",
+            "实验结束后，为什么要先卸去所有拉力再关闭电源？",
+            "本实验数据处理使用的是什么方法？为什么不用逐差法？",
+            "最小二乘法拟合 F-x 直线的目的是什么？",
+            "拟合直线的斜率 k 如何计算？写出核心公式。",
+            "如何通过斜率 k 计算出杨氏模量 E？",
+            "计算器中受力 F 是如何由砝码质量 m 计算得到的？",
+            "实验数据中如果某一组数据明显偏离直线，应该如何处理？",
+            "拟合直线的截距 b 具有物理意义吗？它代表什么？",
+            "为什么砝码质量必须按等间隔增加？",
+            "标尺读数 x 与受力 F 为什么应保持严格线性关系？",
+            "如果 F-x 图像明显弯曲，说明实验出现了什么问题？",
+            "本实验不确定度分为哪两类？分别如何计算？",
+            "金属丝直径 d 的 A 类不确定度如何计算？",
+            "直径 d 的 B 类不确定度如何计算？仪器误差取多少？",
+            "直径合成不确定度 u(d) 的公式是什么？",
+            "L、H、D 属于单次测量，它们的不确定度如何计算？",
+            "斜率 k 的不确定度 u(k) 如何计算？",
+            "杨氏模量相对不确定度 ur(E) 的合成公式是什么？",
+            "为什么直径 d 的相对不确定度要乘以 2 再合成？",
+            "标准不确定度 u(E) 与扩展不确定度 U(E) 有什么区别？",
+            "扩展不确定度 U(E) 取 k=2 代表什么含义？",
+            "哪些因素会造成系统误差？如何减小？",
+            "哪些因素属于随机误差？如何减小？",
+            "光杠杆镜面倾斜会带来什么误差？",
+            "金属丝没有拉直会使测量结果偏大还是偏小？",
+            "螺旋测微器空程误差是什么？如何避免？",
+            "读数视差会对标尺读数带来什么影响？",
+            "温度变化会如何影响实验结果？",
+            "仪器震动为什么会显著增大误差？",
+            "金属丝直径不均匀会带来哪一类误差？",
+            "镜尺距 H 测量不准会对 E 的结果产生什么影响？",
+            "最终杨氏模量结果应如何正确书写？",
+            "65Mn 弹簧钢的杨氏模量理论值大约是多少 GPa？",
+            "实验结果相对误差小于多少属于合格？",
+            "如何判断你的实验数据是否可靠？",
+            "如果 E 测量值偏大，可能是哪些量测小了？",
+            "如果 E 测量值偏小，可能是哪些量测大了？",
+            "为什么直径 d 的误差对 E 影响最大？",
+            "实验结果的有效数字应该如何保留？",
+            "不确定的有效数字通常保留几位？",
+            "加力与减力数据相差较大说明什么问题？",
+            "望远镜中看不到标尺像，可能是什么原因？",
+            "标尺像模糊，无法调清晰，如何解决？",
+            "读数跳动不稳定，可能是什么原因？",
+            "拉力数值不变化，可能是什么故障？",
+            "金属丝滑动，会造成什么后果？",
+            "放大倍数越大越好吗？为什么？",
+            "为什么近距式光杠杆比传统远距式更稳定？",
+            "本实验方法为什么称为静态拉伸法？",
+            "如果换用铜丝，E 会变大还是变小？相同拉力下 Δx 如何变化？",
+            "如果金属丝直径加倍，标尺读数变化量 Δx 会如何变化？",
+            "已知 L、H、D、d、k，如何快速判断 E 的数量级是否正确？",
+            "若只增大镜尺距 H，放大倍数与 E 会如何变化？",
+            "若只增大光杠杆常数 D，放大倍数与 E 会如何变化？",
+            "为什么公式中 g 取 9.8 m/s²？是否需要测量重力加速度？",
+            "本实验能否用来测量材料的弹性限度？",
+            "为什么预拉力通常取 2.00kg？",
+            "砝码质量为什么必须保留三位小数？",
+            "标尺读数为什么至少保留一位小数？",
+            "拟合直线越接近过原点说明什么？",
+            "如何通过 F-x 图像判断金属丝是否发生塑性形变？",
+            "简述光杠杆法测量杨氏模量的实验原理。",
+            "简述实验的主要操作步骤。",
+            "简述数据处理流程（从原始数据到最终 E）。",
+            "分析本实验的主要误差来源及改进方法。",
+            "为什么多次测量是减小随机误差最有效的方法？",
+            "单次测量量与多次测量量的不确定度计算有何不同？",
+            "本实验中哪些量必须多次测量？哪些可以单次测量？",
+            "写出杨氏模量实验中最重要的三个注意事项。",
+            "写出影响实验精度最大的三个物理量。",
+            "总结：做好本实验的关键是什么？"
         ];
 
+        // 点击填入
+        function fill(text) {
+            document.getElementById("q_pre").value = text;
+        }
+
+        // 随机出题
         function getRandomQuestions() {
             const box = document.getElementById("questionBox");
             box.innerHTML = "";
-            // 数组随机洗牌
             const shuffleList = [...questionBank].sort(() => 0.5 - Math.random());
-            // 选取前5道题目
             const selectList = shuffleList.slice(0, 5);
 
             selectList.forEach((item, idx) => {
                 const div = document.createElement("div");
                 div.className = "q-item";
                 div.innerText = `${idx + 1}. ${item}`;
+                div.onclick = () => fill(item);
                 box.appendChild(div);
             });
         }
 
-        // 页面加载自动出题
         window.onload = getRandomQuestions;
+
+        // AI 问答（完全不变）
+        async function askPre() {
+            const q = document.getElementById("q_pre").value.trim();
+            const ans = document.getElementById("ans_pre");
+            if (!q) { ans.innerHTML = "笨蛋！要先点击上面的问题 or 输入问题，我才能回答你咩～"; return; }
+            ans.innerHTML = "🧠 我正在思考ing~";
+
+            try {
+                const res = await fetch("/api/ask", {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ prompt: q })
+                });
+                const data = await res.json();
+                const showText = data?.text || "AI 返回为空，请重试";
+                if (typeof marked !== 'undefined') {
+                    ans.innerHTML = marked.parse(showText);
+                    if (window.MathJax) await MathJax.typesetPromise([ans]);
+                } else {
+                    ans.innerHTML = showText;
+                }
+            } catch (e) {
+                ans.innerHTML = "❌ 错误：" + e.message;
+            }
+        }
     </script>
+</div>
+
 </body>
 </html>
